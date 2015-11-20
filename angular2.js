@@ -9,16 +9,63 @@
   "use strict";
 
   tern.registerPlugin("angular2", function(server, options) {
-    server.addDefs(getDefs());
+    var cx = infer.cx(), esModules = server.plugins["es_modules"] != null;
+    updateDefs(esModules);
+    server.addDefs(defs);
   });
   
-  function getDefs() {
-    return defs;
+  function updateDefs(esModules) {
+    if (esModules) {
+      defs["!define"]["!known_modules"] = {
+        "angular2/angular2": "!ng.ng",
+        "angular2/router": "!ng.ngRouter",
+        "angular2/http": "!ng.ngHttp"
+      }
+    }
+    else {
+      defs["ng"] = "!ng.ng";
+      defs["ngRouter"] = "!ng.ngRouter";
+      defs["ngHttp"] = "!ng.ngHttp";
+    }
   }
   
   var defs = {
-    "ng": {
-      
-    }    
+    "!name": "angular2",
+    "!define": {
+      "!ng": {
+        "ng": {
+          "ComponentMetadata": {
+            "prototype": {
+              "selector": {
+                "!type": "string",
+              },
+              "inputs": {
+                "!type": "[string]"  
+              }
+            }
+          },
+          "Component": {
+            "!type": "fn(metadata: +!ng.ng.ComponentMetadata) -> !ng.ng"
+          },
+          "Class": {
+            "!type": "fn() -> !ng.ng"
+          },
+          "View": {
+            "!type": "fn() -> !ng.ng"
+          }
+        },
+        "ngRouter": {
+          
+        },
+        "ngHttp": {
+          "Http": {
+            
+          },
+          "Headers": {
+            
+          }
+        }
+      }
+    }
   }
 });
